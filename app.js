@@ -8,10 +8,10 @@ const carModels = {
   "Aston Martin": ["Aston Martin F1 Safety Car","Aston Martin Valkyrie AMR Pro Concept","Aston Martin Vulcan RDX","Aston Martin AMR21","V12 Vantage","Aston Martin Vanquish"]
 };
 
-// Populate brand dropdowns on page load
+// Populate brands dropdown
 function populateBrands() {
   const brands = Object.keys(carModels);
-  ["brand1", "brand2", "brand3"].forEach(id => {
+  ["brand1","brand2","brand3"].forEach((id, index) => {
     const select = document.getElementById(id);
     select.innerHTML = `<option value="">Select Brand</option>`;
     brands.forEach(brand => {
@@ -23,14 +23,15 @@ function populateBrands() {
   });
 }
 
-// Populate car models based on selected brand
+// Call it on page load
+populateBrands();
+
+
 function populateModels(brandSelectId, modelSelectId) {
   const brandSelect = document.getElementById(brandSelectId);
   const modelSelect = document.getElementById(modelSelectId);
-
-  // Reset models
   modelSelect.innerHTML = `<option value="">Select Model</option>`;
-
+  
   const selectedBrand = brandSelect.value;
   if (selectedBrand && carModels[selectedBrand]) {
     carModels[selectedBrand].forEach(model => {
@@ -39,6 +40,9 @@ function populateModels(brandSelectId, modelSelectId) {
       option.textContent = model;
       modelSelect.appendChild(option);
     });
+
+    // Automatically select the first model
+    modelSelect.value = carModels[selectedBrand][0];
   }
   preventDuplicates();
 }
@@ -66,14 +70,14 @@ function preventDuplicates() {
   });
 }
 
-// Attach listeners for brand selection
+// When a brand changes, populate its model
 ["brand1", "brand2", "brand3"].forEach((brandId, index) => {
   document.getElementById(brandId).addEventListener("change", () => {
     populateModels(brandId, `model${index + 1}`);
   });
 });
 
-// Attach listeners for model selection
+// Prevent selecting duplicate models
 ["model1", "model2", "model3"].forEach(modelId => {
   document.getElementById(modelId).addEventListener("change", preventDuplicates);
 });
