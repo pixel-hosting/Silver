@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Drive Silverstone — Car Selection</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <main class="container">
+    <h1>Drive Silverstone</h1>
+    <p>Choose three cars. You can't pick the same car twice, but you can choose multiple cars from the same brand.</p>
+
+    <form id="carForm">
+      <div class="field">
+        <label>Discord Username</label>
+        <input type="text" id="discordUsername" name="discordUsername" required placeholder="user#0000">
+      </div>
+      <div class="field">
+        <label>Discord ID</label>
+        <input type="text" id="discordId" name="discordId" required pattern="\d+" placeholder="123456789012345678">
+      </div>
+      <div class="field">
+        <label>Roblox Username</label>
+        <input type="text" id="robloxUsername" name="robloxUsername" required placeholder="RobloxUser">
+      </div>
+
+      <fieldset>
+        <legend>Car Pick 1</legend>
+        <div class="field">
+          <label>Brand</label>
+          <select id="brand1"></select>
+        </div>
+        <div class="field">
+          <label>Model</label>
+          <select id="model1"></select>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Car Pick 2</legend>
+        <div class="field">
+          <label>Brand</label>
+          <select id="brand2"></select>
+        </div>
+        <div class="field">
+          <label>Model</label>
+          <select id="model2"></select>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Car Pick 3</legend>
+        <div class="field">
+          <label>Brand</label>
+          <select id="brand3"></select>
+        </div>
+        <div class="field">
+          <label>Model</label>
+          <select id="model3"></select>
+        </div>
+      </fieldset>
+
+      <div id="status" class="status"></div>
+      <button type="submit" id="submitBtn">Submit</button>
+    </form>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>
