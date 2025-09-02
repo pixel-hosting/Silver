@@ -13,7 +13,7 @@ function populateBrands() {
   const brands = Object.keys(carModels);
   ["brand1","brand2","brand3"].forEach((id, index) => {
     const select = document.getElementById(id);
-    select.innerHTML = `<option value="">Select Brand</option>`;
+    select.innerHTML = `<option value="" disabled selected>Select Brand</option>`;
     brands.forEach(brand => {
       const option = document.createElement("option");
       option.value = brand;
@@ -30,8 +30,9 @@ populateBrands();
 function populateModels(brandSelectId, modelSelectId) {
   const brandSelect = document.getElementById(brandSelectId);
   const modelSelect = document.getElementById(modelSelectId);
-  modelSelect.innerHTML = `<option value="">Select Model</option>`;
-  
+
+  modelSelect.innerHTML = `<option value="" disabled selected>Select Model</option>`;
+
   const selectedBrand = brandSelect.value;
   if (selectedBrand && carModels[selectedBrand]) {
     carModels[selectedBrand].forEach(model => {
@@ -40,10 +41,8 @@ function populateModels(brandSelectId, modelSelectId) {
       option.textContent = model;
       modelSelect.appendChild(option);
     });
-
-    // Automatically select the first model
-    modelSelect.value = carModels[selectedBrand][0];
   }
+
   preventDuplicates();
 }
 
