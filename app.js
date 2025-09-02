@@ -1,94 +1,94 @@
-const cars = {
+const form = document.getElementById("car-form");
+const statusEl = document.getElementById("status");
+
+// Car brand → model mapping
+const carModels = {
   "McLaren": ["McLaren P1","P1 Police Model","Senna","720S","F1","Artura"],
   "Ferrari": ["1972 Ferrari Daytona Spyder 365 GTS/4","Ferrari Testarossa","Ferrari F40","Ferrari LaFerrari","Ferrari 812 Superfast","Ferrari Roma"],
   "Aston Martin": ["Aston Martin F1 Safety Car","Aston Martin Valkyrie AMR Pro Concept","Aston Martin Vulcan RDX","Aston Martin AMR21","V12 Vantage","Aston Martin Vanquish"]
 };
 
-const brandEls = [document.getElementById("brand1"), document.getElementById("brand2"), document.getElementById("brand3")];
-const modelEls = [document.getElementById("model1"), document.getElementById("model2"), document.getElementById("model3")];
-const statusEl = document.getElementById("status");
-const submitBtn = document.getElementById("submitBtn");
+// Populate car models based on selected brand
+function populateModels(brandSelectId, modelSelectId) {
+  const brandSelect = document.getElementById(brandSelectId);
+  const modelSelect = document.getElementById(modelSelectId);
 
-function populateBrands() {
-  const brands = Object.keys(cars);
-  brandEls.forEach((brandEl, idx) => {
-    brandEl.innerHTML = brands.map(b => `<option value="${b}">${b}</option>`).join("");
-    populateModels(idx);
-  });
+  // Reset models
+  modelSelect.innerHTML = `<option value="">Select Model</option>`;
+
+  const selectedBrand = brandSelect.value;
+  if (selectedBrand && carModels[selectedBrand]) {
+    carModels[selectedBrand].forEach(model => {
+      const option = document.createElement("option");
+      option.value = model;
+      option.textContent = model;
+      modelSelect.appendChild(option);
+    });
+  }
 }
 
-function populateModels(index) {
-  const brand = brandEls[index].value;
-  const modelEl = modelEls[index];
-  modelEl.innerHTML = cars[brand].map(m => `<option value="${m}">${m}</option>`).join("");
-  ensureUniqueModels();
-}
+// Prevent duplicate car model selections across all 3 dropdowns
+function preventDuplicates() {
+  const model1 = document.getElementById("carModel1");
+  const model2 = document.getElementById("carModel2");
+  const model3 = document.getElementById("carModel3");
 
-function ensureUniqueModels() {
-  const selected = modelEls.map(m => m.value);
-  const duplicates = new Set(selected.filter((m, i, arr) => arr.indexOf(m) !== i));
+  const selectedModels = [model1.value, model2.value, model3.value];
 
-  modelEls.forEach(modelEl => {
-    Array.from(modelEl.options).forEach(opt => {
-      opt.disabled = selected.includes(opt.value) && opt.value !== modelEl.value;
+  [model1, model2, model3].forEach(currentSelect => {
+    Array.from(currentSelect.options).forEach(option => {
+      if (
+        option.value &&
+        selectedModels.includes(option.value) &&
+        option.value !== currentSelect.value
+      ) {
+        option.disabled = true;
+      } else {
+        option.disabled = false;
+      }
     });
   });
-
-  if (duplicates.size > 0) {
-    statusEl.textContent = "You can't pick the same car model twice.";
-  } else {
-    statusEl.textContent = "";
-  }
 }
 
-brandEls.forEach((brandEl, idx) => {
-  brandEl.addEventListener("change", () => populateModels(idx));
+// Attach listeners for brand selection
+["carBrand1", "carBrand2", "carBrand3"].forEach((brandId, index) => {
+  document.getElementById(brandId).addEventListener("change", () => {
+    populateModels(brandId, `carModel${index + 1}`);
+    preventDuplicates();
+  });
 });
 
-modelEls.forEach(modelEl => {
-  modelEl.addEventListener("change", ensureUniqueModels);
+// Attach listeners for model selection
+["carModel1", "carModel2", "carModel3"].forEach(modelId => {
+  document.getElementById(modelId).addEventListener("change", preventDuplicates);
 });
 
-populateBrands();
-ensureUniqueModels();
-
-document.getElementById("carForm").addEventListener("submit", async (e) => {
+// Handle form submission securely via Vercel API route
+form.addEventListener("submit", async (e) => {
   e.preventDefault();
+  statusEl.textContent = "Submitting...";
+  statusEl.style.color = "#60a5fa"; // blue while submitting
 
-  const discordUsername = document.getElementById("discordUsername").value.trim();
-  const discordId = document.getElementById("discordId").value.trim();
-  const robloxUsername = document.getElementById("robloxUsername").value.trim();
-  const picks = [0,1,2].map(i => ({ brand: brandEls[i].value, model: modelEls[i].value }));
-
-  const uniqueModels = new Set(picks.map(p => p.model));
-  if (uniqueModels.size !== picks.length) {
-    statusEl.textContent = "Duplicate car models selected.";
-    return;
-  }
-
-  submitBtn.disabled = true;
-  submitBtn.textContent = "Submitting...";
+  const formData = new FormData(form);
+  const data = Object.fromEntries(formData);
 
   try {
-    const res = await fetch(process.env.DISCORD_WEBHOOK_URL || "/api/webhook", {
+    const res = await fetch("/api/submit", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        content: `**Drive Silverstone Submission**\nDiscord Username: ${discordUsername}\nDiscord ID: ${discordId}\nRoblox Username: ${robloxUsername}\nCar Picks:\n1. ${picks[0].brand} — ${picks[0].model}\n2. ${picks[1].brand} — ${picks[1].model}\n3. ${picks[2].brand} — ${picks[2].model}`
-      })
+      body: JSON.stringify(data)
     });
 
-    if (!res.ok) throw new Error("Webhook failed");
-    statusEl.style.color = "#66ff66";
-    statusEl.textContent = "Submitted successfully.";
-    document.getElementById("carForm").reset();
-    populateBrands();
-    ensureUniqueModels();
+    if (res.ok) {
+      statusEl.style.color = "#4ade80"; // green success
+      statusEl.textContent = "Submission successful!";
+      form.reset();
+    } else {
+      statusEl.style.color = "#f87171"; // red error
+      statusEl.textContent = "Submission failed. Try again.";
+    }
   } catch (err) {
-    statusEl.style.color = "#ff6666";
-    statusEl.textContent = "Submission failed.";
-  } finally {
-    submitBtn.disabled = false;
-    submitBtn.textContent = "Submit";
+    statusEl.style.color = "#f87171";
+    statusEl.textContent = "Error connecting to server.";
   }
 });
