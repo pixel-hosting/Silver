@@ -3,44 +3,66 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
-  if (!webhookUrl) {
-    return res.status(500).json({ error: "Webhook not configured" });
-  }
+  const {
+    discordUsername,
+    discordId,
+    robloxUsername,
+    car1Brand,
+    car1Model,
+    car2Brand,
+    car2Model,
+    car3Brand,
+    car3Model,
+  } = req.body;
 
-  const data = req.body;
+  const webhookUrl = process.env.WEBHOOK_URL;
 
-  const embed = {
-    title: "🚗 New Drive Silverstone Registration",
-    color: 3092790,
-    fields: [
-      { name: "Discord Username", value: data.discordUsername || "N/A", inline: true },
-      { name: "Discord ID", value: data.discordId || "N/A", inline: true },
-      { name: "Roblox Username", value: data.robloxUsername || "N/A", inline: false },
-      { name: "Car 1", value: `${data.carBrand1} - ${data.carModel1}`, inline: false },
-      { name: "Car 2", value: `${data.carBrand2} - ${data.carModel2}`, inline: false },
-      { name: "Car 3", value: `${data.carBrand3} - ${data.carModel3}`, inline: false },
+  const payload = {
+    embeds: [
+      {
+        title: "🚗 New Drive Silverstone Registration",
+        color: 0x1e90ff,
+        fields: [
+          { name: "Discord Username", value: discordUsername, inline: true },
+          { name: "Discord ID", value: discordId, inline: true },
+          { name: "Roblox Username", value: robloxUsername, inline: true },
+          {
+            name: "Car 1",
+            value: `${car1Brand} — ${car1Model}`,
+            inline: false,
+          },
+          {
+            name: "Car 2",
+            value: `${car2Brand} — ${car2Model}`,
+            inline: false,
+          },
+          {
+            name: "Car 3",
+            value: `${car3Brand} — ${car3Model}`,
+            inline: false,
+          },
+        ],
+        footer: {
+          text: "Drive Silverstone Form Submission",
+        },
+        timestamp: new Date(),
+      },
     ],
-    footer: {
-      text: "Drive Silverstone Form Submission",
-    },
-    timestamp: new Date(),
   };
 
   try {
-    const discordRes = await fetch(webhookUrl, {
+    const response = await fetch(webhookUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ embeds: [embed] }),
+      body: JSON.stringify(payload),
     });
 
-    if (!discordRes.ok) {
-      const errText = await discordRes.text();
-      return res.status(500).json({ error: "Discord webhook failed", details: errText });
+    if (response.ok) {
+      return res.status(200).json({ success: true });
+    } else {
+      return res.status(500).json({ error: "Failed to send webhook" });
     }
-
-    return res.status(200).json({ success: true });
-  } catch (error) {
-    return res.status(500).json({ error: "Unexpected server error" });
+  } catch (err) {
+    return res.status(500).json({ error: "Server error" });
   }
 }
