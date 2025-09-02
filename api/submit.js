@@ -7,12 +7,12 @@ export default async function handler(req, res) {
     discordUsername,
     discordId,
     robloxUsername,
-    car1Brand,
-    car1Model,
-    car2Brand,
-    car2Model,
-    car3Brand,
-    car3Model,
+    brand1,
+    model1,
+    brand2,
+    model2,
+    brand3,
+    model3,
   } = req.body;
 
   const webhookUrl = process.env.WEBHOOK_URL;
@@ -28,17 +28,17 @@ export default async function handler(req, res) {
           { name: "Roblox Username", value: robloxUsername, inline: true },
           {
             name: "Car 1",
-            value: `${car1Brand} — ${car1Model}`,
+            value: `${brand1} — ${model1}`,
             inline: false,
           },
           {
             name: "Car 2",
-            value: `${car2Brand} — ${car2Model}`,
+            value: `${brand2} — ${model2}`,
             inline: false,
           },
           {
             name: "Car 3",
-            value: `${car3Brand} — ${car3Model}`,
+            value: `${brand3} — ${model3}`,
             inline: false,
           },
         ],
