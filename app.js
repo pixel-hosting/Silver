@@ -1,4 +1,4 @@
-const form = document.getElementById("car-form");
+const form = document.getElementById("carForm");
 const statusEl = document.getElementById("status");
 
 // Car brand → model mapping
@@ -7,6 +7,21 @@ const carModels = {
   "Ferrari": ["1972 Ferrari Daytona Spyder 365 GTS/4","Ferrari Testarossa","Ferrari F40","Ferrari LaFerrari","Ferrari 812 Superfast","Ferrari Roma"],
   "Aston Martin": ["Aston Martin F1 Safety Car","Aston Martin Valkyrie AMR Pro Concept","Aston Martin Vulcan RDX","Aston Martin AMR21","V12 Vantage","Aston Martin Vanquish"]
 };
+
+// Populate brand dropdowns on page load
+function populateBrands() {
+  const brands = Object.keys(carModels);
+  ["brand1", "brand2", "brand3"].forEach(id => {
+    const select = document.getElementById(id);
+    select.innerHTML = `<option value="">Select Brand</option>`;
+    brands.forEach(brand => {
+      const option = document.createElement("option");
+      option.value = brand;
+      option.textContent = brand;
+      select.appendChild(option);
+    });
+  });
+}
 
 // Populate car models based on selected brand
 function populateModels(brandSelectId, modelSelectId) {
@@ -25,13 +40,14 @@ function populateModels(brandSelectId, modelSelectId) {
       modelSelect.appendChild(option);
     });
   }
+  preventDuplicates();
 }
 
 // Prevent duplicate car model selections across all 3 dropdowns
 function preventDuplicates() {
-  const model1 = document.getElementById("carModel1");
-  const model2 = document.getElementById("carModel2");
-  const model3 = document.getElementById("carModel3");
+  const model1 = document.getElementById("model1");
+  const model2 = document.getElementById("model2");
+  const model3 = document.getElementById("model3");
 
   const selectedModels = [model1.value, model2.value, model3.value];
 
@@ -51,15 +67,14 @@ function preventDuplicates() {
 }
 
 // Attach listeners for brand selection
-["carBrand1", "carBrand2", "carBrand3"].forEach((brandId, index) => {
+["brand1", "brand2", "brand3"].forEach((brandId, index) => {
   document.getElementById(brandId).addEventListener("change", () => {
-    populateModels(brandId, `carModel${index + 1}`);
-    preventDuplicates();
+    populateModels(brandId, `model${index + 1}`);
   });
 });
 
 // Attach listeners for model selection
-["carModel1", "carModel2", "carModel3"].forEach(modelId => {
+["model1", "model2", "model3"].forEach(modelId => {
   document.getElementById(modelId).addEventListener("change", preventDuplicates);
 });
 
@@ -83,6 +98,7 @@ form.addEventListener("submit", async (e) => {
       statusEl.style.color = "#4ade80"; // green success
       statusEl.textContent = "Submission successful!";
       form.reset();
+      populateBrands(); // repopulate brands after reset
     } else {
       statusEl.style.color = "#f87171"; // red error
       statusEl.textContent = "Submission failed. Try again.";
@@ -92,3 +108,6 @@ form.addEventListener("submit", async (e) => {
     statusEl.textContent = "Error connecting to server.";
   }
 });
+
+// Initialize brands on load
+populateBrands();
